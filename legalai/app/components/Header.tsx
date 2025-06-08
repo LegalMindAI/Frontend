@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
+import { UserButton } from "@/components/auth/user-button"
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -31,7 +32,7 @@ export default function Header() {
         <nav
           className={`${isMenuOpen ? "block" : "hidden"} md:block absolute md:relative top-full left-0 w-full md:w-auto bg-black md:bg-transparent`}
         >
-          <ul className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8 p-4 md:p-0">
+          <ul className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8 p-4 md:p-0 items-center">
             <li>
               <Link href="#services" className="hover:text-purple-400 transition-colors">
                 Services
@@ -41,6 +42,9 @@ export default function Header() {
               <Link href="#about" className="hover:text-purple-400 transition-colors">
                 About
               </Link>
+            </li>
+            <li>
+              <UserButton />
             </li>
           </ul>
         </nav>

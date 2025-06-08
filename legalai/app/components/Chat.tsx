@@ -12,17 +12,20 @@ type Message = {
   sender: "user" | "bot";
 };
 
-export default function AIChat() {
+interface ChatProps {
+  chatType: string;
+}
+
+export default function AIChat({ chatType }: ChatProps) {
   const [messages, setmessages] = useState<Message[]>([]);
 
- 
   return (
     <div className="h-screen flex flex-col justify-center">
-      <ChatHeader />
+      <ChatHeader chatType={chatType} />
       <ChatWindow>
         <MessageList messages={messages} />
       </ChatWindow>
-      <ChatInput messages={messages} setmessages={setmessages} />
+      <ChatInput messages={messages} setmessages={setmessages} chatType={chatType} />
     </div>
   );
 }

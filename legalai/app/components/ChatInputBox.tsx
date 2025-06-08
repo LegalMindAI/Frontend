@@ -1,5 +1,4 @@
 "use client";
-import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { FiMic, FiFileText } from "react-icons/fi";
 import { LuFile } from "react-icons/lu";
@@ -14,17 +13,15 @@ interface Message {
 interface ChatInputProps {
   messages: Message[];
   setmessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  chatType: string;
 }
-const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages, chatType }) => {
   const [input, setInput] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [extracted_text,setextracted_text] = useState<string>("");
 
-  const searchParams = useSearchParams();
-  const type = searchParams.get("type");
-
   const url =
-    type === "Professional"
+    chatType === "Professional"
       ? "http://127.0.0.1:8000/chat-advanced"
       : "http://127.0.0.1:8000/chat-basic";
   const handleSend = async (message: string) => {
