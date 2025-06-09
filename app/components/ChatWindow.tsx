@@ -13,16 +13,21 @@ function ChatWindow({ children }: ChatWindowProps) {
     if (container) {
       container.scrollTo({
         top: container.scrollHeight,
-        behavior: "smooth", // <- this makes it smooth
+        behavior: "smooth",
       });
     }
-  }, [children]); // run when children change (i.e., new messages)
+  }, [children]);
 
   return (
     <div
-      className="flex-grow overflow-y-auto px-4 py-4"
+      className="flex-1 h-full overflow-y-auto px-4 py-4 max-h-screen scrollbar-none" // hide scrollbar
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Firefox/IE fallback
       ref={scrollContainerRef}
     >
+      {/* Hide scrollbar for Webkit browsers */}
+      <style>{`
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+      `}</style>
       {children}
     </div>
   );

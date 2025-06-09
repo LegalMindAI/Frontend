@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { FiMic, FiFileText } from "react-icons/fi";
 import { LuFile } from "react-icons/lu";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import VoiceInput from "./VoiceInput";
+import FileUpload from "./FileUpload";
+import ExportImageButton from "./ExportImageButton";
+import { useAuth } from "@/lib/auth-context";
 
 interface Message {
   text: string;
@@ -17,8 +18,8 @@ interface ChatInputProps {
 }
 const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages, chatType }) => {
   const [input, setInput] = useState<string>("");
-  const [file, setFile] = useState<File | null>(null);
-  const [extracted_text,setextracted_text] = useState<string>("");
+  const [extracted_text, setextracted_text] = useState<string>("");
+  const { user } = useAuth();
 
   const url =
     chatType === "Professional"
@@ -27,12 +28,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages, chatType }
   const handleSend = async (message: string) => {
     if (!message.trim()) return;
     const prevChat = messages.map((msg) => `${msg.sender}: ${msg.text}`);
-
     try {
+      let token = "";
+      if (user) {
+        token = await user.getIdToken();
+      }
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           extracted_text: "",
@@ -42,8 +47,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages, chatType }
       });
 
       const data = await response.json();
-      const parsed = JSON.parse(data);
-      const AiResponse = parsed.answer;
+      const AiResponse = data.answer; // Use data directly
 
       setmessages((prev) => [
         ...prev,
@@ -63,47 +67,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages, chatType }
     setInput(voiceText);
   };
 
- const handleExportPDF = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (!e.target.files || e.target.files.length === 0) return;
-
-  const selectedFile = e.target.files[0]; 
-  setFile(selectedFile); 
-  const formData = new FormData();
-  formData.append("file", selectedFile); 
-
-  try {
-    const response = await fetch("http://127.0.0.1:8000/pdf-upload", {
-      method: "POST",
-      body: formData, 
-    });
-
-    const data = await response.json();
-    setextracted_text(data.extracted_text);
-    
-  } catch (err) {
-    console.error("Upload failed", err);
-  }
-};
-
-
-  // 🖼 Export to Image
-  const handleExportImage = () => {
-    const chatElement = document.getElementById("chat-window");
-    if (!chatElement) return;
-
-    html2canvas(chatElement).then((canvas) => {
-      const link = document.createElement("a");
-      link.download = "chat.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    });
-  };
-
   return (
-    <div className="p-4 flex justify-center items-center ">
+    <div className=" flex justify-center items-center bg-black  max-w-3xl mx-auto rounded-xl">
       <div className="w-full max-w-3xl relative min-h-32 bg-gray-100/20 focus:ring-1 shadow-[0_2px_10px_rgba(255,255,255,0.05)] rounded-xl pt-3">
         <textarea
-          rows={3}
+          rows={3} 
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -113,11 +81,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages, chatType }
             }
           }}
           placeholder="Send a message..."
-          className="
-            w-full resize-none  px-4  pr-20
-            text-sm placeholder:text-white 
-            focus:outline-none 
-          "
+          className="w-full resize-none  px-4  pr-20 text-sm placeholder:text-white focus:outline-none"
         />
 
         <button
@@ -129,30 +93,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ messages, setmessages, chatType }
         <VoiceInput display={input} showDisplay={handleVoiceText} />
 
         <div className="absolute bottom-[1rem] left-4 flex gap-3">
-          <input
-            type="file"
-            accept=".pdf,.doc,.txt,.docx"
-            onChange={handleExportPDF}
-            name="FileInput"
-            id="FileInput"
-            title="Export PDF"
-            className="hidden"
-          />
-          <label
-            htmlFor="FileInput"
-            className="bg-white  text-black p-2 rounded-md hover:bg-black hover:text-white transition"
-          >
-            {" "}
+          <FileUpload onExtractedText={setextracted_text} />
+          <label htmlFor="FileInput" className="bg-white  text-black p-2 rounded-md hover:bg-black hover:text-white transition">
             <FiFileText />
           </label>
-
-          <button
-            onClick={handleExportImage}
-            title="Export Image"
-            className="bg-white text-black p-2 rounded-md hover:bg-black hover:text-white transition"
-          >
-            <LuFile />
-          </button>
+          <ExportImageButton />
         </div>
       </div>
     </div>
