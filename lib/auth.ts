@@ -9,6 +9,7 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
+import { clearStoredToken } from './token-manager';
 
 export async function signUpWithEmail(email: string, password: string, name: string): Promise<User> {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -32,6 +33,7 @@ export async function resendEmailVerification(user: User): Promise<void> {
 }
 
 export async function logout(): Promise<void> {
+  clearStoredToken();
   await signOut(auth);
 }
 

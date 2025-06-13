@@ -176,7 +176,7 @@ export default function LicenseOptionsSection() {
                       ))}
                     </ul>
                   </div>
-                  <Link href={`/chat?type=${encodeURIComponent(option.name)}`}>
+                  <Link href="/chat" className="w-full">
                     <Button
                       className={`w-full ${
                         option.available

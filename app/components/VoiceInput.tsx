@@ -1,6 +1,16 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
+import { Mic, MicOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
+
 interface SpeechRecognition extends EventTarget {
   lang: string;
   interimResults: boolean;
@@ -94,15 +104,45 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ display, showDisplay }) => {
   };
 
   return (
-    <button
-      onClick={handleMicToggle}
-      className={`absolute bottom-4  right-14 h-10 p-2 rounded-md transition
-        shadow-[0_2px_5px_rgba(0,0,0,0.4)] hover:bg-black hover:text-white
-        ${listening ? "bg-black text-white" : "bg-white text-black"}
-      `}
-    >
-      {listening ? <FaMicrophoneSlash size={23} /> : <FaMicrophone size={23} />}
-    </button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={handleMicToggle}
+            variant={listening ? "destructive" : "outline"}
+            size="icon"
+            className={cn(
+              "rounded-xl border-border/30",
+              !listening && "bg-background/80",
+              listening && "relative"
+            )}
+          >
+            {listening ? (
+              <>
+                <MicOff size={18} />
+                <motion.div 
+                  className="absolute inset-0 rounded-xl border border-destructive"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [1, 0.8, 1]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              </>
+            ) : (
+              <Mic size={18} />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{listening ? "Stop recording" : "Voice input"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

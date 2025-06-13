@@ -1,5 +1,6 @@
 // src/components/ChatWindow.tsx
 import { useRef, useEffect, ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface ChatWindowProps {
   children: ReactNode;
@@ -20,15 +21,21 @@ function ChatWindow({ children }: ChatWindowProps) {
 
   return (
     <div
-      className="flex-1 h-full overflow-y-auto px-4 py-4 max-h-screen scrollbar-none" // hide scrollbar
-      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Firefox/IE fallback
+      className={cn(
+        "flex-1 h-full overflow-y-auto",
+        "bg-gradient-to-br from-blue-900/20 via-background to-purple-900/20"
+      )}
       ref={scrollContainerRef}
     >
-      {/* Hide scrollbar for Webkit browsers */}
-      <style>{`
-        .scrollbar-none::-webkit-scrollbar { display: none; }
-      `}</style>
-      {children}
+      <div className="relative h-full">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none" />
+        
+        {/* Content */}
+        <div className="relative z-10 h-full">
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
